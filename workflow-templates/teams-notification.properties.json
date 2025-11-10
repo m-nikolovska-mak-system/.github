@@ -1,0 +1,8 @@
+{
+  "name": "Microsoft Teams Notification",
+  "description": "Send a custom Microsoft Teams message when triggered by another workflow.",
+  "iconName": "chat",
+  "categories": ["notifications", "automation"],
+  "filePatterns": [".*\\.yml$"],
+  "defaultBranch": "main"
+}
