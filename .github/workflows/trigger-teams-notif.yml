@@ -1,0 +1,14 @@
+name: Trigger Teams Notification
+
+on:
+  workflow_dispatch:
+
+jobs:
+  call-teams-notification:
+    uses: ./.github/.github/workflows/teams-notification.yml 
+    with:
+      notification_title: "🚀 New Deployment Ready"
+      action_required_message: "Please verify production deployment"
+      card_color: "Good"
+    secrets:
+      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
