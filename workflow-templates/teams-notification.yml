@@ -1,0 +1,49 @@
+name: Teams Notification Template
+
+on:
+  workflow_call:
+    inputs:
+      notification_title:
+        required: true
+        type: string
+      action_required_message:
+        required: false
+        type: string
+        default: '⚠️ Reminder: Changes detected that may require action'
+      card_color:
+        required: false
+        type: string
+        default: 'Accent'
+    secrets:
+      teams_webhook_url:
+        required: true
+
+jobs:
+  send-notification:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Microsoft Teams notification
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          NOTIFICATION_TITLE: ${{ inputs.notification_title }}
+          ACTION_MESSAGE: ${{ inputs.action_required_message }}
+          CARD_COLOR: ${{ inputs.card_color }}
+        run: |
+          PAYLOAD=$(cat <<EOF
+          {
+            "text": "🚀 $NOTIFICATION_TITLE\n$ACTION_MESSAGE"
+          }
+          EOF
+          )
+
+          echo "📤 Sending notification to Teams..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" "$TEAMS_WEBHOOK_URL")
+
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "202" ]; then
+            echo "✅ Teams notification sent successfully!"
+          else
+            echo "❌ Error: Teams webhook failed with status $HTTP_CODE"
+            exit 1
+          fi
