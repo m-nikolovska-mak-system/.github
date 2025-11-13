@@ -1,0 +1,8 @@
+{
+  "name": "Check for File Changes",
+  "description": "Detects file changes between tags or branches using a reusable workflow.",
+  "iconName": "file-diff",
+  "categories": ["automation", "testing"],
+  "filePatterns": [".*\\.yml$", "src/.*"],
+  "defaultBranch": "main"
+}
