@@ -1,4 +1,4 @@
-name: 🧩 Detect & Act on File Changes
+name: 🧩 Detect & Act on File Changes!
 
 on:
   push:
