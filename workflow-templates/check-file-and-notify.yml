@@ -1,8 +1,8 @@
 name: Detect File Changes + Notify Teams
 on:
-  push:
-    tags:
-      - "v*"
+  on:
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       watched_file:
@@ -10,13 +10,14 @@ on:
         required: true
         type: string
 
+
 jobs:
   check_changes:
     name: Check File Changes
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/3check-file-changes.yml@main
     with:
       watched_files: ${{ github.event.inputs.watched_file }}
-      current_tag: ${{ github.ref_name }}
+      current_tag: ${{ github.event.release.tag_name || github.ref_name }}
       previous_tag: ''
 
   debug_print:
