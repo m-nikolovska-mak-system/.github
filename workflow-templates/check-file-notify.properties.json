@@ -1,0 +1,7 @@
+{
+  "name": "Detect File Changes + Notify Teams",
+  "description": "Detects changed files between tags and sends an MS Teams notification if important files were modified.",
+  "iconName": "bell",
+  "categories": ["automation", "notifications"],
+  "filePatterns": ["**/*.java", "**/*.xml", "**/*.yml"]
+}
