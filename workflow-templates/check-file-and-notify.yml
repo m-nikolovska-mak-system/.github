@@ -1,6 +1,5 @@
 name: Detect File Changes + Notify Teams
 on:
-  on:
   release:
     types: [published]
   workflow_dispatch:
