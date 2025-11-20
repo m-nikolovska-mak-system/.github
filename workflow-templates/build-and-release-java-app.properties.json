@@ -1,0 +1,75 @@
+{
+  "name": "Build & Release Java App",
+  "description": "Enterprise-grade CI/CD pipeline for building and releasing Java applications with Windows installer packaging",
+  "iconName": "gradle",
+  "categories": [
+    "Java",
+    "Build",
+    "Release",
+    "Windows",
+    "Installer"
+  ],
+  "filePatterns": [
+    "build.gradle*",
+    "gradle.properties",
+    "settings.gradle*",
+    "*.iss"
+  ],
+  "documentationUrl": "https://github.com/m-nikolovska-mak-system/reusable-actions-library/blob/main/docs/workflows/build-release-java.md",
+  "inlineDescription": "Automated build, test, and release pipeline for Java applications",
+  "keywords": [
+    "java",
+    "gradle",
+    "build",
+    "release",
+    "inno-setup",
+    "windows-installer",
+    "ci-cd"
+  ],
+  "targetWorkflowPath": ".github/workflows/build-and-release.yml",
+  "steps": [
+    {
+      "name": "Configure Release Options",
+      "description": "Set up Java version, Gradle task, and installer settings",
+      "inputs": [
+        {
+          "name": "java_version",
+          "description": "Java version (e.g., 17, 21)",
+          "default": "17",
+          "required": false
+        },
+        {
+          "name": "app_name",
+          "description": "Application name for Windows installer",
+          "placeholder": "My Java Application",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "Verify Setup Script",
+      "description": "Ensure Inno Setup script (.iss) exists in repository",
+      "inputs": [
+        {
+          "name": "setup_script_pattern",
+          "description": "Glob pattern for Inno Setup script",
+          "default": "**/*.iss",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "Configure Notifications",
+      "description": "Set up Teams webhook for build status notifications",
+      "inputs": [
+        {
+          "name": "teams_webhook_url",
+          "description": "Teams webhook URL for notifications",
+          "placeholder": "https://outlook.webhook.office.com/webhookb2/...",
+          "required": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}
