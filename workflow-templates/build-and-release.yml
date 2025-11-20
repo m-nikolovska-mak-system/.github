@@ -123,32 +123,27 @@ jobs:
           artifact_name: ${{ needs.build_installer.outputs.installer_artifact_name }}
 
   # Phase 4: Notifications
-  notify_success:
-    name: Notify Success
-    needs: [build_jar, detect_iss, validate_inputs, build_installer, upload_release]
-    if: success() && github.event_name == 'release'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send success notification
-        uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main
-        with:
-          notification_title: "✅ Build & Release Succeeded!"
-          action_required_message: "Release ${{ github.event.release.tag_name }} is ready. View: ${{ github.event.release.html_url }}"
-        secrets:
-          teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+notify_success:
+  name: Notify Success
+  needs: [build_jar, detect_iss, validate_inputs, build_installer, upload_release]
+  if: success() && github.event_name == 'release'
+  uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main
+  with:
+    notification_title: "✅ Build & Release Succeeded!"
+    action_required_message: "Release ${{ github.event.release.tag_name }} is ready. View: ${{ github.event.release.html_url }}"
+  secrets:
+    teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
 
-  notify_failure:
-    name: Notify Failure
-    needs: [build_jar, detect_iss, validate_inputs, build_installer, upload_release]
-    if: failure()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send failure notification
-        uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main
-        with:
-          notification_title: "🚨 Build & Release Failed!"
-          action_required_message: |
-            Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            Release: ${{ github.event.release.tag_name || 'N/A' }}
-        secrets:
-          teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+notify_failure:
+  name: Notify Failure
+  needs: [build_jar, detect_iss, validate_inputs, build_installer, upload_release]
+  if: failure()
+  uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main
+  with:
+    notification_title: "🚨 Build & Release Failed!"
+    action_required_message: |
+      Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      Release: ${{ github.event.release.tag_name || 'N/A' }}
+  secrets:
+    teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+
