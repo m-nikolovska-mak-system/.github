@@ -135,7 +135,7 @@ jobs:
       teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
 
   notify_failure:
-  name: Notify Failure
+    name: Notify Failure
     needs: [build_jar, detect_iss, validate_inputs, build_installer, upload_release]
     if: failure()
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main
