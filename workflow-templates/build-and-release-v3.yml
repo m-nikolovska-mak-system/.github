@@ -1,5 +1,5 @@
 # =====================================================================
-# Workflow: Build & Release Java App (v3)
+# Workflow: Build & Release Java App (v4)
 # Purpose : End-to-end pipeline for building a JAR, packaging a Windows
 #           installer, publishing it to a GitHub Release, and notifying.
 # Triggers: Manual dispatch + Release creation event
