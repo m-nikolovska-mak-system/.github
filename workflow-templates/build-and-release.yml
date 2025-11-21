@@ -1,4 +1,4 @@
-name: Build & Release Java App
+name: Build & Release Java App hi this is me testing this hello!
 
 # Trigger configuration
 on:
