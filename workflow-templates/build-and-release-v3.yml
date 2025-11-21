@@ -1,184 +1,113 @@
-# ========================================
-# Build & Release Java Application Workflow
-# ========================================
-# Version: 3.0
-# Purpose: Orchestrates full build→validate→package→release pipeline
-# Maintainer: Platform Engineering Team
-# Last Updated: 2025-01-21
-#
-# This workflow automates:
-# 1. Java JAR compilation via Gradle
-# 2. Artifact validation and verification
-# 3. Windows installer creation using Inno Setup
-# 4. GitHub Release artifact publishing
-# 5. Microsoft Teams notifications (success/failure)
-#
-# Triggers:
-# - Automatic: When GitHub Release is created
-# - Manual: Via Actions UI with optional parameter overrides
-# ========================================
+# =====================================================================
+# Workflow: Build & Release Java App (v3)
+# Purpose : End-to-end pipeline for building a JAR, packaging a Windows
+#           installer, publishing it to a GitHub Release, and notifying.
+# Triggers: Manual dispatch + Release creation event
+# =====================================================================
 
-name: Build & Release Java App
+name: Build & Release Java App (version 3)
 
-# ========== TRIGGER CONFIGURATION ==========
 on:
-  # Manual trigger - allows developers to test builds with custom parameters
   workflow_dispatch:
     inputs:
       java_version:
-        description: 'Java version to use for compilation'
+        description: Java version to use
         required: false
-        default: '17'
-        type: string
+        default: "17"
+
       java_distribution:
-        description: 'Java distribution (temurin, corretto, zulu)'
+        description: Java distribution (temurin, zulu, etc.)
         required: false
-        default: 'temurin'
-        type: string
+        default: "temurin"
+
       gradle_task:
-        description: 'Gradle task to execute (jar, build, shadowJar)'
+        description: Gradle task to run
         required: false
-        default: 'jar'
-        type: string
-  
-  # Automatic trigger - fires whenever a release is created
-  # This is the primary production trigger
+        default: "jar"
+
   release:
     types: [created]
 
-# ========== CONCURRENCY SETTINGS ==========
-# Prevents multiple builds for the same release from running simultaneously
-# Cancellation disabled to avoid killing in-progress production releases
+# ---------------------------------------------------------------------
+# Concurrency ensures that only one execution runs per release tag
+# ---------------------------------------------------------------------
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.release.tag_name || github.run_id }}
   cancel-in-progress: false
 
-# ========== PIPELINE JOBS ==========
+# =====================================================================
+# JOB: Build JAR
+# =====================================================================
 jobs:
-  # ─────────────────────────────────────
-  # STAGE 1: BUILD JAR
-  # ─────────────────────────────────────
-  # Compiles Java application via Gradle
-  # Outputs: JAR file + cache key for downstream jobs
-  # Duration: ~2-5 minutes
-  # Failure: Blocks entire pipeline
   build_jar:
     name: Build JAR
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-jar.yml@main
     with:
-      # Release version from GitHub Release tag (e.g., v1.2.3)
       release_tag: ${{ github.event.release.tag_name }}
-      
-      # Gradle task - customizable via workflow_dispatch
-      # Defaults to 'jar' but can be overridden to 'shadowJar', 'build', etc.
       gradle_task: ${{ inputs.gradle_task || 'jar' }}
-      
-      # Java version - customizable via workflow_dispatch
-      # Supports: 11, 17, 21, etc.
       java_version: ${{ inputs.java_version || '17' }}
-      
-      # Java distribution - customizable via workflow_dispatch
-      # Supports: temurin (Eclipse), corretto (AWS), zulu (Azul)
       java_distribution: ${{ inputs.java_distribution || 'temurin' }}
 
-  # ─────────────────────────────────────
-  # STAGE 2A: DETECT SETUP SCRIPT
-  # ─────────────────────────────────────
-  # Validates that Inno Setup (.iss) configuration exists
-  # Outputs: setup_script path for installer creation
-  # Duration: ~30 seconds
-  # Failure: Blocks installer build
+  # ===================================================================
+  # JOB: Detect .iss installer script
+  # ===================================================================
   detect_iss:
     name: Detect Setup Script
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/detect-setup-script.yml@main
     with:
-      # File pattern to search for Inno Setup configuration
       pattern: "**/*.iss"
-      
-      # Fail if no .iss file found (strict validation)
-      # Set to false if .iss is optional in your repo
       fail_if_missing: true
 
-  # ─────────────────────────────────────
-  # STAGE 2B: VALIDATE BUILD OUTPUTS
-  # ─────────────────────────────────────
-  # Sanity checks on JAR build to catch failures early
-  # Prevents unnecessary installer build on bad artifacts
-  # Duration: ~1 minute
-  # Failure: Blocks installer build
+  # ===================================================================
+  # JOB: Validate Inputs
+  # Ensures build_jar produced a non-empty cache key
+  # ===================================================================
   validate_inputs:
-    name: Validate JAR cache key
-    needs: build_jar  # Waits for build_jar to complete
+    name: Validate JAR Cache Key
+    needs: build_jar
     runs-on: ubuntu-latest
     steps:
-      - name: Check jar_cache_key
+      - name: Validate jar_cache_key
         run: |
-          # Verify JAR cache key exists and is not empty
-          # Cache key used by downstream jobs to retrieve artifacts
           if [ -z "${{ needs.build_jar.outputs.jar_cache_key }}" ]; then
-            echo "::error::JAR cache key is empty - build may have failed silently"
+            echo "::error::JAR cache key is empty!"
             exit 1
           fi
-          echo "✓ JAR cache key validated: ${{ needs.build_jar.outputs.jar_cache_key }}"
 
-  # ─────────────────────────────────────
-  # STAGE 3: BUILD WINDOWS INSTALLER
-  # ─────────────────────────────────────
-  # Creates .exe installer from JAR using Inno Setup
-  # Outputs: installer artifact (e.g., Setup-v1.2.3.exe)
-  # Duration: ~3-5 minutes
-  # Dependencies: Requires build_jar, detect_iss, and validate_inputs to succeed
+  # ===================================================================
+  # JOB: Build Windows Installer using Inno Setup
+  # ===================================================================
   build_installer:
     name: Build Windows Installer
-    needs: [build_jar, detect_iss, validate_inputs]  # Wait for all previous stages
+    needs: [build_jar, detect_iss, validate_inputs]
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-installer.yml@main
     with:
-      # Inno Setup configuration file (output from detect_iss)
       setup_script: ${{ needs.detect_iss.outputs.setup_script }}
-      
-      # JAR file path (output from build_jar)
       jar_path: ${{ needs.build_jar.outputs.jar_path }}
-      
-      # Gradle cache key for retrieving JAR artifact
       jar_cache_key: ${{ needs.build_jar.outputs.jar_cache_key }}
-      
-      # Application name (auto-populated from repository name)
       app_name: ${{ github.event.repository.name }}
-      
-      # Application version (from release tag, e.g., v1.2.3)
       app_version: ${{ github.event.release.tag_name }}
-      
-      # Installer output filename pattern
       output_name: "Setup-${{ github.event.release.tag_name }}"
 
-  # ─────────────────────────────────────
-  # STAGE 4: UPLOAD RELEASE ASSET
-  # ─────────────────────────────────────
-  # Publishes installer to GitHub Release as downloadable artifact
-  # Users download from: github.com/repo/releases/tag/vX.Y.Z
-  # Duration: ~1 minute
+  # ===================================================================
+  # JOB: Upload installer to GitHub Release
+  # ===================================================================
   upload_release:
     name: Upload Release Asset
-    needs: build_installer  # Waits for installer creation
+    needs: build_installer
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/upload-release.yml@main
     with:
-      # GitHub Release tag (e.g., v1.2.3)
       tag_name: ${{ github.event.release.tag_name }}
-      
-      # Installer artifact name to upload
       artifact_name: ${{ needs.build_installer.outputs.installer_artifact_name }}
 
-  # ─────────────────────────────────────
-  # STAGE 5A: NOTIFY SUCCESS
-  # ─────────────────────────────────────
-  # Sends success notification to Microsoft Teams
-  # Only runs if ALL jobs succeed AND trigger is release event
-  # Duration: ~30 seconds
+  # ===================================================================
+  # JOB: Notify Success (Microsoft Teams)
+  # Only runs on actual release events
+  # ===================================================================
   notify_success:
     name: Notify Success
-    needs: [build_jar, detect_iss, validate_inputs, build_installer, upload_release]
-    # Only notify on success AND if triggered by release event
     if: success() && github.event_name == 'release'
+    needs: [build_jar, detect_iss, validate_inputs, build_installer, upload_release]
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main
     with:
       notification_title: "✅ Build & Release Succeeded!"
@@ -186,22 +115,16 @@ jobs:
     secrets:
       teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
 
-  # ─────────────────────────────────────
-  # STAGE 5B: NOTIFY FAILURE
-  # ─────────────────────────────────────
-  # Sends failure notification to Microsoft Teams with debug info
-  # Triggered on ANY job failure
-  # Duration: ~30 seconds
+  # ===================================================================
+  # JOB: Notify Failure
+  # ===================================================================
   notify_failure:
     name: Notify Failure
-    needs: [build_jar, detect_iss, validate_inputs, build_installer, upload_release]
-    # Only notify on failure (regardless of trigger type)
     if: failure()
+    needs: [build_jar, detect_iss, validate_inputs, build_installer, upload_release]
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main
     with:
       notification_title: "🚨 Build & Release Failed!"
-      action_required_message: |
-        Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        Release: ${{ github.event.release.tag_name || 'N/A' }}
+      action_required_message: "Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
     secrets:
       teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
