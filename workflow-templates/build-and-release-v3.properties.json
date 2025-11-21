@@ -1,73 +1,25 @@
 {
-  "workflow_name": "Build & Release Java App",
-  "workflow_file": ".github/workflows/build-and-release.yml",
-  "description": "Orchestrates JAR build, Windows installer creation, and release publishing",
-  "defaults": {
-    "java_version": "17",
-    "java_distribution": "temurin",
-    "gradle_task": "jar",
-    "setup_script_pattern": "**/*.iss",
-    "setup_script_fail_if_missing": true
-  },
-  "reusable_workflows": {
-    "build_jar": {
-      "path": ".github/workflows/build-jar.yml",
-      "repo": "m-nikolovska-mak-system/reusable-actions-library",
-      "ref": "main"
+  "name": "Build & Release Java App",
+  "description": "Enterprise-grade CI/CD pipeline for building and releasing Java applications with Windows installer packaging.",
+  "icon": "package",
+  "color": "orange",
+  "categories": ["Java", "Build", "Release", "Windows"],
+  "file": ".github/workflows/build-and-release.yml",
+  "inputs": {
+    "java_version": {
+      "description": "Java version to use for compilation (e.g., 11, 17, 21)",
+      "default": "17",
+      "required": false
     },
-    "detect_iss": {
-      "path": ".github/workflows/detect-setup-script.yml",
-      "repo": "m-nikolovska-mak-system/reusable-actions-library",
-      "ref": "main"
+    "java_distribution": {
+      "description": "Java distribution (temurin, corretto, zulu)",
+      "default": "temurin",
+      "required": false
     },
-    "build_installer": {
-      "path": ".github/workflows/build-installer.yml",
-      "repo": "m-nikolovska-mak-system/reusable-actions-library",
-      "ref": "main"
-    },
-    "upload_release": {
-      "path": ".github/workflows/upload-release.yml",
-      "repo": "m-nikolovska-mak-system/reusable-actions-library",
-      "ref": "main"
-    },
-    "teams_notifier": {
-      "path": ".github/workflows/teams-notifier.yml",
-      "repo": "m-nikolovska-mak-system/reusable-actions-library",
-      "ref": "main"
+    "gradle_task": {
+      "description": "Gradle task to execute (jar, build, shadowJar)",
+      "default": "jar",
+      "required": false
     }
-  },
-  "triggers": [
-    {
-      "type": "workflow_dispatch",
-      "description": "Manual trigger with optional parameter overrides"
-    },
-    {
-      "type": "release",
-      "event_types": ["created"],
-      "description": "Automatically triggered when a release is created"
-    }
-  ],
-  "required_secrets": [
-    "TEAMS_WEBHOOK_URL"
-  ],
-  "test_scenarios": [
-    {
-      "name": "Manual dispatch with defaults",
-      "trigger": "workflow_dispatch",
-      "inputs": {}
-    },
-    {
-      "name": "Manual dispatch with custom Java version",
-      "trigger": "workflow_dispatch",
-      "inputs": {
-        "java_version": "21",
-        "java_distribution": "temurin"
-      }
-    },
-    {
-      "name": "Release trigger",
-      "trigger": "release",
-      "description": "Simulates GitHub release creation event"
-    }
-  ]
+  }
 }
