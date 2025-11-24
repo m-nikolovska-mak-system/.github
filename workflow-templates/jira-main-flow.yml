@@ -3,6 +3,10 @@ name: Mega Jira Workflow
 on:
   workflow_dispatch:
     inputs:
+      project_key:
+        description: "Jira project key (example: ERP)"
+        required: true
+        type: string
       summary:
         description: "Summary for the Jira ticket"
         required: true
@@ -19,14 +23,18 @@ on:
 jobs:
   create:
     name: Create Jira Issue
-    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/create-jira-issue.yml@main
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/create-jira-ticket.yml@main
     with:
+      project_key: ${{ inputs.project_key }}
       summary: ${{ inputs.summary }}
       description: ${{ inputs.description }}
     secrets:
       JIRA_EMAIL: ${{ secrets.JIRA_USER }}
       JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
       JIRA_URL: ${{ secrets.JIRA_BASE_URL }}
+
+   outputs:
+      issue_key: ${{ steps.create.outputs.issue_key }}
 
   assign:
     name: Assign Jira Issue
