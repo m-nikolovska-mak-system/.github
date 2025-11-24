@@ -13,18 +13,12 @@ on:
         type: string
       description:
         description: "Description text"
-        required: true
+        required: false
         type: string
       assignee_email:
         description: "Email of assignee"
         required: true
         type: string
-
-# Centralized secrets for all jobs
-secrets:
-  JIRA_EMAIL: ${{ secrets.JIRA_USER }}
-  JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-  JIRA_URL: ${{ secrets.JIRA_BASE_URL }}
 
 jobs:
   create:
@@ -33,7 +27,11 @@ jobs:
     with:
       project_key: ${{ inputs.project_key }}
       summary: ${{ inputs.summary }}
-      description: ${{ inputs.description }}
+      desc: ${{ inputs.description }}
+    secrets:
+      JIRA_EMAIL: ${{ secrets.JIRA_USER }}
+      JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+      JIRA_URL: ${{ secrets.JIRA_BASE_URL }}
 
   assign:
     name: Assign Jira Issue
@@ -42,3 +40,7 @@ jobs:
     with:
       issue_key: ${{ needs.create.outputs.issue_key }}
       assignee_email: ${{ inputs.assignee_email }}
+    secrets:
+      JIRA_EMAIL: ${{ secrets.JIRA_USER }}
+      JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+      JIRA_URL: ${{ secrets.JIRA_BASE_URL }}
