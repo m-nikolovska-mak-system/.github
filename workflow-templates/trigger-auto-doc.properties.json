@@ -1,0 +1,8 @@
+{
+  "name": "Trigger Auto-Doc Workflow",
+  "description": "Calls a reusable workflow to auto-generate documentation for changed GitHub Actions workflows.",
+  "iconName": "book",
+  "categories": ["automation", "documentation"],
+  "filePatterns": [".github/workflows/.*\\.yml$", ".github/workflows/.*\\.yaml$"],
+  "defaultBranch": "main"
+}
