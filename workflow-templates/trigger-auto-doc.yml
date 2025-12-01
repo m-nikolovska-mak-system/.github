@@ -2,6 +2,8 @@ name: Trigger Auto-Doc Workflow
 
 on:
   pull_request:
+    branches-ignore:
+      - 'auto-doc/**'
     paths:
       - ".github/workflows/*.yml"
       - ".github/workflows/*.yaml"
