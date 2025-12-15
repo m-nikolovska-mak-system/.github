@@ -1,0 +1,16 @@
+{
+  "name": "Sync Files to Platform Repository",
+  "description": "Automatically sync files to the central platform repository when creating releases. Configure which files to sync and where they go.",
+  "iconName": "sync",
+  "categories": [
+    "Deployment",
+    "Automation"
+  ],
+  "filePatterns": [
+    ".*\\.java$",
+    ".*\\.yml$",
+    ".*\\.yaml$",
+    "README\\.md$",
+    "config/.*"
+  ]
+}
