@@ -1,0 +1,312 @@
+# ========================================
+# WORKFLOW TEMPLATE - File Sync to Platform
+# ========================================
+# 
+# Location: your-org/m-nikolovska-mak-system/.github/workflow-templates/sync-to-platform.yml
+# 
+# This is a GitHub workflow template that appears in the
+# "Actions" → "New workflow" menu for all organization members.
+# 
+# Users can click "Set up this workflow" and it will be
+# pre-populated with this content.
+# ========================================
+
+name: Sync to Platform Repo
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  sync-to-platform:
+    name: Sync Files to Platform
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/sync-to-platform-reusable.yml@main
+    
+name: Sync to Platform Repo
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  sync-to-platform:
+    name: Sync Files to Platform
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/sync-to-platform-reusable.yml@main
+    
+    with:
+      # ════════════════════════════════════════════════════════════════════
+      # 📁 WHAT FILES TO SYNC
+      # ════════════════════════════════════════════════════════════════════
+      # List the files and folders you want to sync to the platform repo.
+      # You can use patterns (wildcards) to match multiple files.
+      #
+      # Pattern Examples:
+      #   config/**           - All files in config/ folder and subfolders
+      #   src/main/**/*.java  - All Java files in src/main/ tree
+      #   *.md                - All Markdown files in root directory
+      #   docs/**/*.pdf       - All PDF files anywhere in docs/
+      #   README.md           - Specific file
+      #   lib/*.jar           - All JAR files in lib/ folder (not subfolders)
+      #
+      # Common Use Cases:
+      #   📄 Config files only:     config/**, *.yml, *.yaml
+      #   📚 Documentation only:    docs/**, README.md, *.md
+      #   🔧 Build artifacts:       build/libs/**, dist/**
+      #   📦 Everything:            **  (all files - use with caution!)
+      #   🎯 Specific folders:      src/main/**, tests/**
+      #
+      # 💡 Tips:
+      #   - List one pattern per line
+      #   - Start specific, expand later if needed
+      #   - Test patterns locally: git ls-files 'your-pattern'
+      #   - Remove the "# TODO" line below when ready
+      # ════════════════════════════════════════════════════════════════════
+      source_files: |
+        # TODO: Replace these with your actual files/patterns
+        config/**
+        README.md
+        # Add more patterns below (one per line):
+        # docs/**
+        # src/main/**
+        # build.gradle
+      
+      # ════════════════════════════════════════════════════════════════════
+      # 🔄 SYNC MODE
+      # ════════════════════════════════════════════════════════════════════
+      # Controls which files are synced on each release.
+      #
+      # Options:
+      #   'changed' (Recommended) - Only sync files that changed since the 
+      #                            last release. Efficient and fast.
+      #                            Use when: Most releases only modify a few files
+      #
+      #   'all'                  - Always sync all files matching the patterns
+      #                            above, even if they haven't changed.
+      #                            Use when: You want to ensure files are always 
+      #                            up-to-date, or for critical config files
+      #
+      # 💡 Tips:
+      #   - Start with 'changed' - it's faster and more efficient
+      #   - Use 'all' for important files that must always be in sync
+      #   - First release always syncs all files (no previous release to compare)
+      # ════════════════════════════════════════════════════════════════════
+      sync_mode: 'changed'
+      
+      # ════════════════════════════════════════════════════════════════════
+      # 🎯 DESTINATION REPOSITORY
+      # ════════════════════════════════════════════════════════════════════
+      # Where should files be copied to?
+      #
+      # Format: 'organization-name/repository-name'
+      #
+      # Examples:
+      #   'm-nikolovska-mak-system/platform-repo'  (default platform repo)
+      #   'my-company/shared-configs'              (alternative repo)
+      #   'my-org/central-library'                 (another option)
+      #
+      # ⚠️ IMPORTANT:
+      #   - You must have write access to this repository
+      #   - The PLATFORM_PAT secret must have permissions for this repo
+      #   - Ask your platform team if unsure which repo to use
+      #
+      # 💡 Most teams should keep the default below unless specifically told otherwise
+      # ════════════════════════════════════════════════════════════════════
+      destination_repo: 'm-nikolovska-mak-system/platform-repo'
+      
+      # ════════════════════════════════════════════════════════════════════
+      # 📂 DESTINATION PATH
+      # ════════════════════════════════════════════════════════════════════
+      # Where in the destination repo should your files be copied?
+      # This creates a folder structure to organize multiple products.
+      #
+      # Examples:
+      #   'products/my-project'        - Good for product repos
+      #   'shared/my-library'          - Good for shared libraries
+      #   'configs/my-service'         - Good for configuration repos
+      #   'teams/frontend/my-app'      - Good for team-organized repos
+      #   ''                           - Root directory (not recommended)
+      #
+      # Your files will appear at:
+      #   platform-repo/[destination_path]/[your-files-with-structure]
+      #
+      # Example with 'products/my-project':
+      #   Source:      config/app.yml
+      #   Destination: platform-repo/products/my-project/config/app.yml
+      #
+      # ⚠️ TODO: Change 'my-project' to your actual project/repo name
+      #
+      # 💡 Tips:
+      #   - Use lowercase and hyphens: 'my-app' not 'MyApp'
+      #   - Match your repo name for consistency
+      #   - This folder is created automatically if it doesn't exist
+      #   - Don't use spaces or special characters
+      # ════════════════════════════════════════════════════════════════════
+      destination_path: 'products/my-project'
+      
+      # ════════════════════════════════════════════════════════════════════
+      # 📐 PRESERVE DIRECTORY STRUCTURE
+      # ════════════════════════════════════════════════════════════════════
+      # Should the original folder structure be kept?
+      #
+      # Options:
+      #   true  (Recommended) - Keeps your folder structure intact
+      #                         Example: src/main/App.java → 
+      #                                  dest/src/main/App.java
+      #                         Use when: You want to maintain organization
+      #
+      #   false               - Flattens everything into one folder
+      #                         Example: src/main/App.java → dest/App.java
+      #                         Use when: Syncing build artifacts or libs
+      #                                   that don't need folder structure
+      #
+      # Real Examples:
+      #   preserve_structure: true
+      #     Source:      config/database.yml
+      #     Destination: products/my-project/config/database.yml ✅
+      #
+      #   preserve_structure: false
+      #     Source:      config/database.yml
+      #     Destination: products/my-project/database.yml ✅
+      #
+      # 💡 Tips:
+      #   - Use 'true' for source code and configs (most common)
+      #   - Use 'false' for build artifacts (JARs, executables)
+      #   - When in doubt, use 'true'
+      # ════════════════════════════════════════════════════════════════════
+      preserve_structure: true
+      
+      # ════════════════════════════════════════════════════════════════════
+      # 🏷️ CREATE MATCHING TAG
+      # ════════════════════════════════════════════════════════════════════
+      # Should a release tag be created in the destination repo?
+      #
+      # Options:
+      #   true  (Recommended) - Creates matching tag in destination repo
+      #                         Helps track which version was synced
+      #                         Example: Your v1.2.3 creates platform tag
+      #
+      #   false               - No tag created in destination repo
+      #                         Use when: You don't want version tracking
+      #                                   or sync to multiple destinations
+      #
+      # What happens with 'true':
+      #   - You create release v1.2.3 in your repo
+      #   - Tag 'my-project-v1.2.3' is created in platform repo
+      #   - Easy to see what version of your project is in platform repo
+      #
+      # 💡 Tips:
+      #   - Use 'true' for better version tracking (recommended)
+      #   - Set to 'false' if you sync to multiple repos (avoids conflicts)
+      # ════════════════════════════════════════════════════════════════════
+      create_tag: true
+      
+      # ════════════════════════════════════════════════════════════════════
+      # 🔖 TAG PREFIX
+      # ════════════════════════════════════════════════════════════════════
+      # Prefix added to tags in the destination repo to distinguish products.
+      #
+      # Examples:
+      #   'my-project-'    → v1.2.3 becomes my-project-v1.2.3
+      #   'frontend-app-'  → v1.0.0 becomes frontend-app-v1.0.0
+      #   'lib-auth-'      → v2.5.1 becomes lib-auth-v2.5.1
+      #   ''               → v1.2.3 stays as v1.2.3 (not recommended)
+      #
+      # Why use a prefix?
+      #   - Platform repo contains files from many products
+      #   - Prefixes prevent tag conflicts between products
+      #   - Makes it clear which product a tag belongs to
+      #
+      # ⚠️ TODO: Change 'my-project' to match your project name
+      #
+      # 💡 Tips:
+      #   - Match your repo name: repo 'auth-service' → prefix 'auth-service-'
+      #   - Use lowercase and hyphens
+      #   - Always include the trailing dash (-)
+      #   - Be consistent across your team
+      #
+      # Example Timeline:
+      #   You release:  v1.0.0, v1.1.0, v2.0.0
+      #   Platform gets: my-project-v1.0.0, my-project-v1.1.0, my-project-v2.0.0
+      # ════════════════════════════════════════════════════════════════════
+      tag_prefix: 'my-project-'
+      
+      # ════════════════════════════════════════════════════════════════════
+      # 💬 COMMIT MESSAGE TEMPLATE
+      # ════════════════════════════════════════════════════════════════════
+      # Message used when committing files to the destination repo.
+      #
+      # Available Variables:
+      #   {repo}  - Your repository name (e.g., 'my-org/my-project')
+      #   {tag}   - Release tag (e.g., 'v1.2.3')
+      #   {files} - Number of files synced (e.g., '5')
+      #
+      # Examples:
+      #   '🔄 Sync from {repo} release {tag} ({files} files)'
+      #   → "🔄 Sync from my-org/my-app release v1.2.3 (5 files)"
+      #
+      #   'Update from {repo} - version {tag}'
+      #   → "Update from my-org/my-app - version v1.2.3"
+      #
+      #   'Release {tag}: Synced {files} files from {repo}'
+      #   → "Release v1.2.3: Synced 5 files from my-org/my-app"
+      #
+      # 💡 Tips:
+      #   - Use emojis for better visibility in commit history
+      #   - Include {repo} so you know which product updated
+      #   - Include {tag} for version tracking
+      #   - The default below works great for most cases
+      # ════════════════════════════════════════════════════════════════════
+      commit_message_template: '🔄 Sync from {repo} release {tag} ({files} files)'
+    
+    secrets:
+      # ════════════════════════════════════════════════════════════════════
+      # 🔐 AUTHENTICATION SECRET
+      # ════════════════════════════════════════════════════════════════════
+      # Personal Access Token (PAT) that allows writing to the platform repo.
+      #
+      # ⚠️ CRITICAL: You MUST set this up before the workflow will work!
+      #
+      # Setup Steps:
+      #   1. Create PAT (if you don't have one):
+      #      - Go to: GitHub → Your Profile (top right) → Settings
+      #      - Scroll down: Developer settings → Personal access tokens
+      #      - Click: "Generate new token" → "Generate new token (classic)"
+      #      - Note: "Platform Repo Sync"
+      #      - Expiration: 90 days (or longer if allowed)
+      #      - Scopes: Check ✅ "repo" (full control of private repositories)
+      #      - Click: "Generate token"
+      #      - ⚠️ COPY THE TOKEN NOW - you won't see it again!
+      #
+      #   2. Add PAT as repository secret:
+      #      - Go to: This repository → Settings tab
+      #      - Click: Secrets and variables → Actions
+      #      - Click: "New repository secret"
+      #      - Name: PLATFORM_PAT  (must match exactly)
+      #      - Secret: Paste your token (starts with ghp_...)
+      #      - Click: "Add secret"
+      #
+      #   3. Verify it worked:
+      #      - Secrets → Actions → Look for "PLATFORM_PAT" ✅
+      #
+      # Troubleshooting:
+      #   ❌ "Secret not found"           → Secret name must be exactly "PLATFORM_PAT"
+      #   ❌ "Permission denied"          → PAT needs 'repo' scope
+      #   ❌ "Resource not accessible"    → PAT might be expired, create new one
+      #
+      # Security Notes:
+      #   ✅ DO: Store PAT as a secret (never in code)
+      #   ✅ DO: Set expiration date (90 days recommended)
+      #   ✅ DO: Use minimal permissions needed ('repo' scope only)
+      #   ❌ DON'T: Share PAT with anyone
+      #   ❌ DON'T: Commit PAT to git
+      #   ❌ DON'T: Use PAT with admin permissions
+      #
+      # 💡 Pro Tips:
+      #   - PAT expires after 90 days by default - mark your calendar!
+      #   - Use organization secrets if syncing from multiple repos
+      #   - Test with a dummy release first to verify PAT works
+      #   - If PAT expires, generate new one and update the secret
+      #
+      # ⚠️ This line should stay exactly as-is (don't change "PLATFORM_PAT")
+      # ════════════════════════════════════════════════════════════════════
+      destination_token: ${{ secrets.PLATFORM_PAT }}
