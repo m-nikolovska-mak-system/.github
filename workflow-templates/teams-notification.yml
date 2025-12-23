@@ -1,4 +1,6 @@
-name: Teams Notification Template
+# Workflow: Microsoft Teams Notifier (Reusable) this is not a template!
+
+name: Teams Notification Template  (Reusable)
 
 on:
   workflow_call:
