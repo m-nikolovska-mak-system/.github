@@ -10,18 +10,7 @@
 # Users can click "Set up this workflow" and it will be
 # pre-populated with this content.
 # ========================================
-
-name: Sync to Platform Repo
-
-on:
-  release:
-    types: [published]
-
-jobs:
-  sync-to-platform:
-    name: Sync Files to Platform
-    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/sync-to-platform-reusable.yml@main
-    
+   
 name: Sync to Platform Repo
 
 on:
