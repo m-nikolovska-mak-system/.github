@@ -1,0 +1,25 @@
+{
+  "name": "Build & Release Java App",
+  "description": "CI/CD pipeline for building and releasing Java applications with Windows installer packaging and Teams notifications.",
+  "icon": "package",
+  "color": "orange",
+  "categories": ["Java", "Build", "Release", "Windows"],
+  "file": ".github/workflows/build-and-release.yml",
+  "inputs": {
+    "java_version": {
+      "description": "Java version to use for compilation (e.g., 11, 17, 21)",
+      "default": "17",
+      "required": false
+    },
+    "java_distribution": {
+      "description": "Java distribution to use (temurin, corretto, zulu)",
+      "default": "temurin",
+      "required": false
+    },
+    "gradle_task": {
+      "description": "Gradle task to execute (jar, build, shadowJar)",
+      "default": "jar",
+      "required": false
+    }
+  }
+}
